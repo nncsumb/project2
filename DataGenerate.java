@@ -13,7 +13,7 @@ public class DataGenerate {
 	
 	static final String DBURL = "jdbc:mysql://localhost:3306/HospitalDB";
 	static final String USERID = "root";
-	static final String PASSWORD = "J@perona1";
+	static final String PASSWORD = "secret";
 	
 	static ArrayList<String> patientSSNs = new ArrayList<>();
 	static ArrayList<String> doctorSSNs = new ArrayList<>();
