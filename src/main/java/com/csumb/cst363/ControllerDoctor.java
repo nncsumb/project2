@@ -38,32 +38,41 @@ public class ControllerDoctor {
 	 */
 	@PostMapping("/doctor/register")
 	public String createDoctor(Doctor doctor, Model model) {
-		
+
 		try (Connection con = getConnection();) {
-			PreparedStatement ps = con.prepareStatement("insert into doctor(last_name, first_name, specialty, practice_since,  ssn ) values(?, ?, ?, ?, ?)", 
+			// Validate practice_since year
+			int practiceYear = Integer.parseInt(doctor.getPractice_since_year());
+			if (practiceYear < 1900 || practiceYear > 2022) {
+				model.addAttribute("message", "Invalid Practice Year. Year must be 4 digits in the range 1900-2022.");
+				model.addAttribute("doctor", doctor);
+				return "doctor_register";
+			}
+
+			PreparedStatement ps = con.prepareStatement("insert into doctor(last_name, first_name, specialty, practice_since,  ssn ) values(?, ?, ?, ?, ?)",
 					Statement.RETURN_GENERATED_KEYS);
 			ps.setString(1, doctor.getLast_name());
 			ps.setString(2, doctor.getFirst_name());
 			ps.setString(3, doctor.getSpecialty());
 			ps.setString(4, doctor.getPractice_since_year());
 			ps.setString(5, doctor.getSsn());
-			
+
 			ps.executeUpdate();
 			ResultSet rs = ps.getGeneratedKeys();
-			if (rs.next()) doctor.setId((int)rs.getLong(1));
-		
+			if (rs.next()) doctor.setId((int) rs.getLong(1));
+
 			// display message and patient information
 			model.addAttribute("message", "Registration successful.");
 			model.addAttribute("doctor", doctor);
 			return "doctor_show";
-			
+
 		} catch (SQLException e) {
-			model.addAttribute("message", "SQL Error."+e.getMessage());
+			model.addAttribute("message", "SQL Error: " + e.getMessage());
 			model.addAttribute("doctor", doctor);
-			return "doctor_register";	
+			return "doctor_register";
 		}
 	}
-	
+
+
 	/*
 	 * Request blank form for doctor search.
 	 */
