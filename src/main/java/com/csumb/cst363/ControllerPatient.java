@@ -86,6 +86,12 @@ public class ControllerPatient {
             return "patient_register";
         }
 
+        if (!isSSN(p.getSsn())) {
+            model.addAttribute("message", "Error: Invalid ssn.");
+            model.addAttribute("patient", p);
+            return "patient_register";
+        }
+
         try (Connection con = getConnection()) {
             PreparedStatement ps = con.prepareStatement("INSERT INTO patient (last_name, first_name, birthdate, ssn, street, city, state, zipcode, primaryName) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
@@ -259,10 +265,10 @@ public class ControllerPatient {
     }
 
 
-    private boolean isPrimaryCareSpecialist(String firstName) throws SQLException {
+    private boolean isPrimaryCareSpecialist(String lastName) throws SQLException {
         try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) AS count FROM Doctor WHERE first_name = ? AND specialty IN ('Family Medicine', 'Internal Medicine', 'Pediatrics')")) {
-            ps.setString(1, firstName);
+             PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) AS count FROM Doctor WHERE last_name = ? AND specialty IN ('Family Medicine', 'Internal Medicine', 'Pediatrics')")) {
+            ps.setString(1, lastName);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 int count = rs.getInt("count");
@@ -284,7 +290,9 @@ public class ControllerPatient {
         return zipcode != null && zipcode.matches("^\\d{5}(-\\d{4})?$");
     }
 
-
+    private boolean isSSN(String ssn) {
+        return ssn != null && ssn.matches("^\\d{9}$");
+    }
 
     /*
      * return JDBC Connection using jdbcTemplate in Spring Server

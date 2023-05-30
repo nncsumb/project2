@@ -43,6 +43,7 @@ public class ControllerPrescriptionFill {
 				p.setQuantity(resultSet.getInt("Quantity"));
 				p.setDoctor_ssn(resultSet.getString("Doctor_SSN"));
 				p.setPatient_ssn(resultSet.getString("Patient_SSN"));
+				p.setCost("10");
 
 				Date dateFilled = resultSet.getDate("DateFilled");
 				if (dateFilled != null) {
@@ -58,15 +59,22 @@ public class ControllerPrescriptionFill {
 				resultSet = statement.executeQuery();
 
 				if (resultSet.next()) {
+					int pharmacyId = resultSet.getInt("PharmacyId");
+					String pharmacyAddress = resultSet.getString("Address");
+					String pharmacyPhoneNumber = resultSet.getString("PhoneNumber");
+					String pharmacyName = resultSet.getString("Name");
 					p.setPharmacyPhone(resultSet.getString("PhoneNumber"));
-
 					dateFilled = Date.valueOf(LocalDate.now());
 					p.setDateFilled(dateFilled.toString());
 
-					sql = "UPDATE Prescription SET DateFilled = ? WHERE RXNumber = ?";
+					sql = "UPDATE Prescription SET DateFilled = ?, PharmacyId = ?, PharmacyAddress = ?, PharmacyPhoneNumber = ?, PharmacyName = ?  WHERE RXNumber = ?";
 					statement = conn.prepareStatement(sql);
 					statement.setDate(1, dateFilled);
-					statement.setString(2, p.getRxid());
+					statement.setInt(2, pharmacyId);
+					statement.setString(3, pharmacyAddress);
+					statement.setString(4, pharmacyPhoneNumber);
+					statement.setString(5, pharmacyName);
+					statement.setString(6, p.getRxid());
 					statement.executeUpdate();
 
 					model.addAttribute("message", "Prescription has been filled.");
