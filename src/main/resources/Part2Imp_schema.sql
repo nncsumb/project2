@@ -1,46 +1,56 @@
+-- This script creates a HospitalDB database and defines several tables: Doctor, Patient, Drug, Pharmacy, and Prescription.
+
+-- Drop the HospitalDB database if it already exists to start fresh.
 DROP DATABASE IF EXISTS HospitalDB;
 
+-- Create the HospitalDB database.
 CREATE DATABASE HospitalDB;
 
+-- Switch to using the HospitalDB database.
 USE HospitalDB;
 
+-- Create the Doctor table.
+-- This table stores information about doctors.
 CREATE TABLE Doctor
 (
-    ID             INT AUTO_INCREMENT PRIMARY KEY,
-    last_name      VARCHAR(50) NOT NULL,
-    first_name     VARCHAR(50) NOT NULL,
-    practice_since INT         NOT NULL,
-    specialty      VARCHAR(50) NOT NULL,
-    ssn            VARCHAR(20) UNIQUE,
-    INDEX (ssn)
+    ID             INT AUTO_INCREMENT PRIMARY KEY,                                    -- Unique identifier for each doctor (auto-incremented).
+    last_name      VARCHAR(50) NOT NULL,                                              -- Last name of the doctor.
+    first_name     VARCHAR(50) NOT NULL,                                              -- First name of the doctor.
+    practice_since INT(4)      NOT NULL CHECK (practice_since BETWEEN 1900 AND 2022), -- Year the doctor started practicing.
+    specialty      VARCHAR(50) NOT NULL,                                              -- Medical specialty of the doctor.
+    ssn            VARCHAR(20) NOT NULL UNIQUE,                                       -- Social Security Number of the doctor.
+    INDEX (ssn)                                                                       -- Indexing the ssn column for efficient queries.
 );
 
+-- Create the Patient table.
+-- This table stores information about patients.
 CREATE TABLE Patient
 (
-    patientId   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    last_name   VARCHAR(255) DEFAULT NULL,
-    first_name  VARCHAR(255) DEFAULT NULL,
-    birthdate   DATE         DEFAULT NULL,
-    ssn         VARCHAR(20)  DEFAULT NULL UNIQUE,
-    street      VARCHAR(255) DEFAULT NULL,
-    city        VARCHAR(255) DEFAULT NULL,
-    state       VARCHAR(255) DEFAULT NULL,
-    zipcode     VARCHAR(10)  DEFAULT NULL,
-    primaryName VARCHAR(255) default null,
-    INDEX (ssn)
+    patientId   INT          NOT NULL AUTO_INCREMENT PRIMARY KEY, -- Unique identifier for each patient (auto-incremented).
+    last_name   VARCHAR(255) NOT NULL,                            -- Last name of the patient.
+    first_name  VARCHAR(255) NOT NULL,                            -- First name of the patient.
+    birthdate   DATE         NOT NULL,                            -- Birthdate of the patient.
+    ssn         VARCHAR(20)  NOT NULL UNIQUE,                     -- Social Security Number of the patient.
+    street      VARCHAR(255) NOT NULL,                            -- Street address of the patient.
+    city        VARCHAR(255) NOT NULL,                            -- City of the patient.
+    state       VARCHAR(255) NOT NULL,                            -- State of the patient.
+    zipcode     VARCHAR(10)  NOT NULL,                            -- Zip code of the patient.
+    primaryName VARCHAR(255) NOT NULL,                            -- Primary name of the patient.
+    INDEX (ssn)                                                   -- Indexing the ssn column for efficient queries.
 );
 
---
--- Table structure for table `drug`
---
+-- Create the Drug table.
+-- This table stores information about drugs.
 CREATE TABLE drug
 (
-    drug_id    int(11) NOT NULL,
-    trade_name varchar(100) DEFAULT NULL,
-    formula    varchar(200) DEFAULT NULL,
-    PRIMARY KEY (drug_id)
+    drug_id    int(11)      NOT NULL, -- Unique identifier for each drug.
+    trade_name varchar(100) NOT NULL, -- Trade name of the drug.
+    formula    varchar(200) NOT NULL, -- Chemical formula of the drug.
+    PRIMARY KEY (drug_id)             -- Primary key constraint on the drug_id column.
 );
 
+-- Insert data into the Drug table.
+-- This inserts sample drug records.
 INSERT INTO drug
 VALUES (1, 'Tylenol with Codeine', 'acetaminophen and codeine'),
        (2, 'Proair Proventil', 'albuterol aerosol'),
@@ -142,36 +152,19 @@ VALUES (1, 'Tylenol with Codeine', 'acetaminophen and codeine'),
        (98, 'Calan SR', 'verapamil SR'),
        (99, 'Ambien', 'zolpidem');
 
+-- Create the Pharmacy table.
+-- This table stores information about pharmacies.
 CREATE TABLE Pharmacy
 (
-    PharmacyId  INT(8) PRIMARY KEY AUTO_INCREMENT,
-    Name        VARCHAR(50),
-    Address     VARCHAR(50) NOT NULL,
-    PhoneNumber VARCHAR(20) NOT NULL,
-    INDEX (Name)
+    PharmacyId  INT(8) PRIMARY KEY AUTO_INCREMENT, -- Unique identifier for each pharmacy (auto-incremented).
+    Name        VARCHAR(50) NOT NULL,              -- Name of the pharmacy.
+    Address     VARCHAR(50) NOT NULL,              -- Address of the pharmacy.
+    PhoneNumber VARCHAR(20) NOT NULL,              -- Phone number of the pharmacy.
+    INDEX (Name)                                   -- Indexing the Name column for efficient queries.
 );
 
-CREATE TABLE Prescription
-(
-    RXNumber         INT PRIMARY KEY AUTO_INCREMENT,
-    DrugName         VARCHAR(255) NOT NULL,
-    Quantity         INT          NOT NULL CHECK (Quantity > 0),
-    Patient_SSN      VARCHAR(20)  NOT NULL,
-    PatientFirstName VARCHAR(255) NOT NULL,
-    PatientLastName  VARCHAR(255) NOT NULL,
-    Doctor_SSN       VARCHAR(20)  NOT NULL,
-    DoctorFirstName  VARCHAR(255) NOT NULL,
-    DoctorLastName   VARCHAR(255) NOT NULL,
-    PharmacyId       INT(8) DEFAULT NULL,
-    PharmacyName     VARCHAR(50) DEFAULT NULL,
-    PharmacyAddress     VARCHAR(50) DEFAULT NULL,
-    PharmacyPhoneNumber VARCHAR(20) DEFAULT NULL,
-    DateFilled       DATE   DEFAULT NULL,
-    FOREIGN KEY (Patient_SSN) REFERENCES Patient (ssn),
-    FOREIGN KEY (Doctor_SSN) REFERENCES Doctor (ssn),
-    FOREIGN KEY (PharmacyId) REFERENCES Pharmacy (pharmacyid)
-);
-
+-- Insert data into the Pharmacy table.
+-- This inserts sample pharmacy records.
 INSERT INTO Pharmacy (Name, Address, PhoneNumber)
 VALUES ('ABC Pharmacy', '123 Main Street', '555-1234'),
        ('XYZ Pharmacy', '456 Elm Avenue', '555-5678'),
@@ -179,12 +172,41 @@ VALUES ('ABC Pharmacy', '123 Main Street', '555-1234'),
        ('MediCare Pharmacy', '321 Pine Road', '555-1213'),
        ('QuickMeds', '987 Cedar Street', '555-1415');
 
+-- Create the Prescription table.
+-- This table stores information about prescriptions.
+CREATE TABLE Prescription
+(
+    RXNumber            INT PRIMARY KEY AUTO_INCREMENT,             -- Unique identifier for each prescription (auto-incremented).
+    DrugName            VARCHAR(255) NOT NULL,                      -- Name of the prescribed drug.
+    Quantity            INT          NOT NULL CHECK (Quantity > 0), -- Quantity of the drug prescribed.
+    Patient_SSN         VARCHAR(20)  NOT NULL,                      -- Social Security Number of the patient.
+    PatientFirstName    VARCHAR(255) NOT NULL,                      -- First name of the patient.
+    PatientLastName     VARCHAR(255) NOT NULL,                      -- Last name of the patient.
+    Doctor_SSN          VARCHAR(20)  NOT NULL,                      -- Social Security Number of the doctor.
+    DoctorFirstName     VARCHAR(255) NOT NULL,                      -- First name of the doctor.
+    DoctorLastName      VARCHAR(255) NOT NULL,                      -- Last name of the doctor.
+    PharmacyId          INT(8)      DEFAULT NULL,                   -- Pharmacy identifier for the prescription.
+    PharmacyName        VARCHAR(50) DEFAULT NULL,                   -- Name of the pharmacy where the prescription was filled.
+    PharmacyAddress     VARCHAR(50) DEFAULT NULL,                   -- Address of the pharmacy where the prescription was filled.
+    PharmacyPhoneNumber VARCHAR(20) DEFAULT NULL,                   -- Phone number of the pharmacy where the prescription was filled.
+    DateFilled          DATE        DEFAULT NULL,                   -- Date when the prescription was filled.
+    FOREIGN KEY (Patient_SSN) REFERENCES Patient (ssn),             -- Foreign key constraint referencing the Patient table.
+    FOREIGN KEY (Doctor_SSN) REFERENCES Doctor (ssn),               -- Foreign key constraint referencing the Doctor table.
+    FOREIGN KEY (PharmacyId) REFERENCES Pharmacy (pharmacyid)       -- Foreign key constraint referencing the Pharmacy table.
+);
 
+-- Select all rows from the Doctor table.
 SELECT *
-FROM doctor;
+FROM Doctor;
+
+-- Select all rows from the Patient table.
 SELECT *
-FROM patient;
-select *
-from prescription;
-select *
-from pharmacy;
+FROM Patient;
+
+-- Select all rows from the Prescription table.
+SELECT *
+FROM Prescription;
+
+-- Select all rows from the Pharmacy table.
+SELECT *
+FROM Pharmacy;

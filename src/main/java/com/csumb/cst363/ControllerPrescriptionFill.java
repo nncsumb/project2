@@ -4,7 +4,6 @@ package com.csumb.cst363;
 // Here we import necessary packages and classes from the Java standard library and Spring library.
 import java.sql.*;
 import java.time.LocalDate;
-import java.text.SimpleDateFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
