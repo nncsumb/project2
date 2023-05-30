@@ -38,20 +38,22 @@ public class ControllerPrescriptionCreate {
     @PostMapping("/prescription")
     public String newPrescription(Prescription p, Model model) {
         try (Connection conn = getConnection()) {
-            String sql = "SELECT COUNT(*) FROM Doctor WHERE ssn = ? AND last_name = ?";
+            String sql = "SELECT COUNT(*) FROM Doctor WHERE ssn = ? AND last_name = ? AND first_name = ?";
             PreparedStatement statement = conn.prepareStatement(sql);
             statement.setString(1, p.getDoctor_ssn());
             statement.setString(2, p.getDoctorLastName());
+            statement.setString(3, p.getDoctorFirstName());
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next() && resultSet.getInt(1) == 0) {
                 model.addAttribute("message", "Invalid Doctor Details.");
                 return "prescription_create";
             }
 
-            sql = "SELECT COUNT(*) FROM Patient WHERE ssn = ? AND last_name = ?";
+            sql = "SELECT COUNT(*) FROM Patient WHERE ssn = ? AND last_name = ? AND first_name = ?";
             statement = conn.prepareStatement(sql);
             statement.setString(1, p.getPatient_ssn());
             statement.setString(2, p.getPatientLastName());
+            statement.setString(3, p.getPatientFirstName());
             resultSet = statement.executeQuery();
             if (resultSet.next() && resultSet.getInt(1) == 0) {
                 model.addAttribute("message", "Invalid Patient Details.");

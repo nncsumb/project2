@@ -243,8 +243,18 @@ public class DataGenerate {
 	private static String generateUniqueSSN(Random gen, ArrayList<String> generatedSSNs) {
 		String ssn;
 		do {
-			ssn = Integer.toString(123450000 + gen.nextInt(10000));
+			int areaNumber = 1 + gen.nextInt(899); // Random number between 001 and 899
+			int groupNumber = 1 + gen.nextInt(99); // Random number between 01 and 99
+			int serialNumber = 1 + gen.nextInt(9999); // Random number between 0001 and 9999
+
+			// Format the digits to have leading zeros if necessary
+			String formattedAreaNumber = String.format("%03d", areaNumber);
+			String formattedGroupNumber = String.format("%02d", groupNumber);
+			String formattedSerialNumber = String.format("%04d", serialNumber);
+
+			ssn = formattedAreaNumber + formattedGroupNumber  + formattedSerialNumber;
 		} while (generatedSSNs.contains(ssn));
+
 		generatedSSNs.add(ssn);
 		return ssn;
 	}

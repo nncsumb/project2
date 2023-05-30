@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 
 /*
  * Controller class for patient interactions.
@@ -38,7 +41,7 @@ public class ControllerPatient {
     public String newPatient(Patient p, Model model) throws SQLException {
 
         // Validate primaryName field
-        if (!isPrimaryCareSpecialist(p.getPrimaryName())) {
+        if (!isPrimaryCareSpecialist(p.getPrimaryName(), p.getBirthdate())) {
             model.addAttribute("message", "Error: Invalid primary care specialist.");
             model.addAttribute("patient", p);
             return "patient_register";
@@ -211,7 +214,7 @@ public class ControllerPatient {
     @PostMapping("/patient/edit")
     public String updatePatient(Patient p, Model model) throws SQLException {
         // Validate primaryName field
-        if (!isPrimaryCareSpecialist(p.getPrimaryName())) {
+        if (!isPrimaryCareSpecialist(p.getPrimaryName(), p.getBirthdate())) {
             model.addAttribute("message", "Error: Invalid primary care specialist.");
             model.addAttribute("patient", p);
             return "patient_edit";
@@ -265,9 +268,13 @@ public class ControllerPatient {
     }
 
 
-    private boolean isPrimaryCareSpecialist(String lastName) throws SQLException {
+    private boolean isPrimaryCareSpecialist(String lastName, String birthDateStr) throws SQLException {
+        if (!isValidBirthDate(birthDateStr)) {
+            return hasPediatricsSpecialty(lastName);
+        }
+
         try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) AS count FROM Doctor WHERE last_name = ? AND specialty IN ('Family Medicine', 'Internal Medicine', 'Pediatrics')")) {
+             PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) AS count FROM Doctor WHERE last_name = ? AND specialty IN ('Family Medicine', 'Internal Medicine')")) {
             ps.setString(1, lastName);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -275,11 +282,36 @@ public class ControllerPatient {
                 return count > 0;
             }
         }
+
+        return false;
+    }
+
+    private boolean isValidBirthDate(String birthDateStr) {
+        try {
+            LocalDate birthDate = LocalDate.parse(birthDateStr, DateTimeFormatter.ISO_LOCAL_DATE);
+            LocalDate currentDate = LocalDate.now();
+            return Period.between(birthDate, currentDate).getYears() >= 18;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean hasPediatricsSpecialty(String lastName) throws SQLException {
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) AS count FROM Doctor WHERE last_name = ? AND specialty = 'Pediatrics'")) {
+            ps.setString(1, lastName);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt("count");
+                return count > 0;
+            }
+        }
+
         return false;
     }
 
     private boolean isValidName(String name) {
-        return name != null && name.matches("^[a-zA-Z]+$");
+        return name != null && name.matches("^[a-zA-Z ]+$");
     }
 
     private boolean isValidDate(String date) {
@@ -290,8 +322,8 @@ public class ControllerPatient {
         return zipcode != null && zipcode.matches("^\\d{5}(-\\d{4})?$");
     }
 
-    private boolean isSSN(String ssn) {
-        return ssn != null && ssn.matches("^\\d{9}$");
+    private static boolean isSSN(String ssn) {
+        return ssn != null && ssn.matches("^[1-8]\\d{4}[0-8]\\d{3}$");
     }
 
     /*

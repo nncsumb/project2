@@ -173,7 +173,12 @@ CREATE TABLE Prescription
 );
 
 INSERT INTO Pharmacy (Name, Address, PhoneNumber)
-VALUES ('ABC Pharmacy', '123 Main Street', '555-1234');
+VALUES ('ABC Pharmacy', '123 Main Street', '555-1234'),
+       ('XYZ Pharmacy', '456 Elm Avenue', '555-5678'),
+       ('123 Pharmacy', '789 Oak Lane', '555-9101'),
+       ('MediCare Pharmacy', '321 Pine Road', '555-1213'),
+       ('QuickMeds', '987 Cedar Street', '555-1415');
+
 
 SELECT *
 FROM doctor;
