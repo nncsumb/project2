@@ -64,6 +64,7 @@ public class ControllerPrescriptionFill {
 					String pharmacyPhoneNumber = resultSet.getString("PhoneNumber");
 					String pharmacyName = resultSet.getString("Name");
 					p.setPharmacyPhone(resultSet.getString("PhoneNumber"));
+					p.setPharmacyID(String.valueOf(pharmacyId));
 					dateFilled = Date.valueOf(LocalDate.now());
 					p.setDateFilled(dateFilled.toString());
 
